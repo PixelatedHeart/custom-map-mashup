@@ -1,0 +1,42 @@
+#contenedortiempo{width:314px;}
+.tabla_izquierda{width:106px; float:left;margin-right:18px;margin-bottom:10px;border: 1px solid #4D729A;}
+.tabla_derecha{width:106px; float:left;margin-bottom:10px;border: 1px solid #4D729A;}
+.tabla_ancha{width:106px;}
+.nombre_provincia{background-color: #4D729A; color:white; font-size: 12px; font-weight: bold; width: 106px; padding-left:6px;font-family:arial;height:19px;border-right:1px solid #4D729A;}
+.temp_max_title{text-align:center;font-family:arial; font-size:9px; width;55px;border-right:1px solid #4D729A;background-color:#BABCBE;height:10px;}
+.temp_min_title{text-align:center;font-family:arial; font-size:9px; width:56px;background-color:#BABCBE;height:10px;border-right:1px solid #4D729A;}
+.temp_max{text-align:center;font-family:arial;font-size:14px;font-weight:bold; width:55px;border-right: 1px solid #4D729A;height:18px;}
+.temp_min{text-align:center;font-family:arial;font-size:14px;font-weight:bold; width:56px;height:18px;border-right:1px solid #4D729A;}
+.tabla_imagen{width:40px;height:47px;}
+.cuadro_imagen{text-align:center;padding-top:4px;}
+
+.linea_tabla{font-family:arial; font-weight:bold;font-size:10px;width:990px;}
+.linea_provincia{color:#4D729A;float:left;font-size:11px;}
+.linea_temp_max{color:red;float:left;}
+.linea_temp_min{color:black;float:left;}
+.linea_imagen{float:left;vertical-align:top;margin-top:-4px;}
+
+
+.cuadro {height: 57px;width: 642px;background-image: url(http://www.canalsur.es/resources/archivos/2010/9/6/1283773559847fondtiempo646.jpg);text-align:center;color:white;font-family: Arial;font-size: 14px;text-decoration: none;font-weight: bold;}
+.cuadro_pos1 {width:190px;font-size:20px;padding-top:16px;float:left;font-family: Arial;}
+.cuadro_pos2 {float:left;padding-left:10px;padding-right:26px;padding-top:9px;line-height: 20px;}
+.enlacewhite{color: white;text-decoration: none;font-family: Arial;}
+.enlacewhite:hover, .enlacewhite:active{text-decoration:underline;}
+.temp_city{background-color:#4D729A;border-bottom:1px solid #4D729A;font-family:arial;font-size:12px;font-weight:bold;color:white;padding-left:7px;padding-right:-7px;}
+.temp_temp{background-color:#BABCBE;border-right:1px solid #4D729A;font-family:arial;font-size:9px;text-align:center;}
+/*.temp_max{float:left;background-color:#BABCBE;border-right:1px solid #4D729A;}
+.temp_min{float:left;background-color:#BABCBE;}*/
+.temp_data{font-family:arial;font-size:14px;font-weight:bold;text-align:center;}
+.temp_data_max{float:left;border-right:1px solid #4D729A;}
+.temp_data_min{float:left;overflow: visible;border-right:1px solid #4D729A;}
+.temp_image{width:38px;float:right;height:35px;text-align:center;padding-top:8px;}
+.bloque_temp{float:left;margin-right:18px;margin-bottom:12px;}
+.bloque_temp_dcha{float:right;margin-bottom:12px;}
+.container{width:314px;}
+.tempmin {width: 24px;text-align: center;font-weight: bold;border: 0;background-color: #CCDEFF;font-size: 12px;font-family:Arial;}
+.probpreci {width: 24px;color: #999;text-align: right;font-weight: bold;font-size: 12px;font-family:Arial;}
+.tempmax {width: 24px;text-align: center;font-weight: bold;border: 0;background-color: #FFC4B2;font-size: 12px;font-family:Arial;}
+.filaimpar {background-color: #eee;font-size: 12px;font-family:Arial;text-align: left;}
+.filapar{font-size: 12px;font-family:Arial;text-align:left;}
+caption{font-family: Arial;font-weight: bold;font-size: 12px;text-align:left;padding-left:1px;}
+.prevision{text-align:center;}*/
