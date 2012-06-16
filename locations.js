@@ -1,0 +1,17 @@
+var weathericonData={"wprealm":{width:32,height:32},"wordcamp":{width:32,height:32},"meetup":{width:32,height:32}};
+
+var weatherLayer=[{"zoom":[0,5],"places":[{"name":"Sevilla","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[37.3772222,-5.9869444],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "15-16/09/2012"]},
+{"name":"Lisbon","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[38.706932,-9.135632],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!","29/09/2012"]},
+{"name":"Canterbury","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[51.280233,1.078909],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Burgum","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[53.2,6],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Venlo","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[51.370489,6.172386],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Sevilla","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[37.3772222,-5.9869444],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Mallorca","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[39.695263,3.017571],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+]},{"zoom":[6,17],"places":[{"name":"Sevilla","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[37.3772222,-5.9869444],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "15-16/09/2012"]},
+{"name":"Lisbon","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[38.706932,-9.135632],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!","29/09/2012"]},
+{"name":"Burgum","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[53.2,6],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Venlo","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[51.370489,6.172386],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Sevilla","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[37.3772222,-5.9869444],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+{"name":"Mallorca","icon":"wprealm","iconos":["wprealm","meetup","wordcamp"],"posn":[39.695263,3.017571],"description":["Here goes the description","Here goes the description","Come to our WordCamp!"],"dias":["Every day","Next Monday!", "Here goes an address"]},
+]}];
+

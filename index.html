@@ -1,0 +1,475 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml"  xmlns:v="urn:schemas-microsoft-com:vml">
+<head>
+<meta http-equiv="content-type" content="text/html; charset=utf-8" />
+<title>WP Realm map</title>
+<meta name="description" content="" />
+
+<script src="http://maps.google.com/maps?file=api&amp;v=3&amp;key=ABQIAAAAUjGyiisNVi-Ee_g7LpMLSxStJnw4O3w5NbVWRXlXQY-K4eEu-BTeEYk5HiVMqLPQ8XY8PpG0iy_dQQ&sensor=true" type="text/javascript"></script>
+<script src="locations.js" type="text/javascript" charset="utf-8"></script>
+<link rel="stylesheet" href="map.css" type="text/css" media="all" />
+
+<script type="text/javascript">
+//<![CDATA[
+var map = null;
+var geo = null;
+var dir = null;
+var bou = null;
+var mgr = null;
+var mct = null;
+//
+var internalundef = typeof(somthingwithoutDEFINITION);  // hack
+//
+var latFound    = [];
+var lngFound    = [];
+var markerFound = [];
+var labelFound  = [];
+var bufferAddresses = '';
+//
+var mapcambasID;
+var addresscambasID;
+//
+var fromDirectionLatLng  = null;
+var fromDirectionAdrress = null;
+var toDirectionLatLng    = null;
+var toDirectionAddress   = null;
+//
+var weatherIcons = {};
+var showWeatherFlag = 1;
+var showGasFlag = 0;
+//
+var isIE = 0;
+/////////////////////////////////////////////////////////////
+//
+// from a Google Maps API example
+//
+// We define the function first
+function ShowHideWeatherControl() {
+}
+// To "subclass" the GControl, we set the prototype object to
+// an instance of the GControl object
+ShowHideWeatherControl.prototype = new GControl();
+// Creates a one DIV for each of the buttons and places them in a container
+// DIV which is returned as our control element. We add the control to
+// to the map container and return the element for the map class to
+// position properly.
+ShowHideWeatherControl.prototype.initialize = function(map) {
+var container = document.createElement("div");
+var showhideWeatherDiv = document.createElement("div");
+showhideWeatherDiv.setAttribute("id","botonActivarElTiempo");
+map.getContainer().appendChild(container);
+return container;
+}
+// By default, the control will appear in the top left corner of the
+// map with 7 pixels of padding.
+ShowHideWeatherControl.prototype.getDefaultPosition = function() {
+return new GControlPosition(G_ANCHOR_TOP_RIGHT, new GSize(7, 26));
+}
+// Sets the proper CSS for the given button element.
+ShowHideWeatherControl.prototype.setButtonStyle_ = function(button) {
+button.style.textDecoration = "none";
+button.style.color = "#000000";
+button.style.backgroundColor = "white";
+button.style.fontFamily = "Arial, Helvetica, sans-serif";
+button.style.fontSize = "12px";
+button.style.border = "1px solid black";
+button.style.padding = "2px";
+button.style.textAlign = "center";
+button.style.width = "11em";
+button.style.cursor = "pointer";
+}
+/////////////////////////////////////////////////////////////
+//
+// from a Google Maps API example
+//
+function getWeatherIcon(image) {
+var icon = null;
+if (image) {
+if (weatherIcons[image]) {
+icon = weatherIcons[image];
+} else {
+icon                    = new GIcon();
+icon.image              = "http://raven.es/wprealm/iconos/32/" + image + ".png";
+var size                = weathericonData[image];
+icon.iconSize           = new GSize(size.width, size.height);
+icon.iconAnchor         = new GPoint(size.width >> 1, size.height >> 1);
+icon.infoWindowAnchor   = new GPoint(size.width >> 1, size.height >> 1);
+icon.infoShadowAnchor   = new GPoint(size.width >> 1, size.height >> 1);
+weatherIcons[image]     = icon;
+}
+}
+return icon;
+}
+function setupWeatherMarkers() {
+if (!showWeatherFlag)
+return;
+if (!mgr) {
+// No esta definida la mascara de la prevision ==> ...
+mgr = new GMarkerManager(map);
+for (var i in weatherLayer) {
+var layer = weatherLayer[i];
+var markers = [];
+for (var j in layer["places"]) {
+var place = layer["places"][j];
+var icon = getWeatherIcon(place["iconos"][0]);
+var posn = new GLatLng(place["posn"][0], place["posn"][1]);
+var icon = getWeatherIcon(place["iconos"][0]);
+markers.push(createMarker2(posn, place["name"], icon, place["description"], place["dias"], place["iconos"]));
+}
+mgr.addMarkers(markers, layer["zoom"][0], layer["zoom"][1]);
+}
+}
+mgr.refresh();
+}
+function createMarker2(point, labelHTML, icon, predicciones, dias, iconos, probpreci) {
+var marker = new GMarker(point, {title: "Details for " + labelHTML, icon: icon});
+var i;
+var buffer = '';
+//var marker = new GMarker(point,icon);
+for (i=0;i<3;i++) {
+if (i%2)
+quefila='filapar';
+else quefila='filaimpar';
+//buffer += '<tr><th class='+quefila+'>'+dias[i] +'</th><td class='+quefila+'>'+predicciones[i]+'</td><td class="tempmin">'+tempmin[i]+'</td><td class="tempmax">'+tempmax[i]+'</td></tr>';
+buffer += '<tr><th class='+quefila+'>'+dias[i] +'</th><td class='+quefila+'><img src="http://raven.es/wprealm/iconos/32/'+iconos[i]+'.png" height="24" width="24" alt="'+predicciones[i]+'" title="'+predicciones[i]+'" /></td><td class='+quefila+'>'+predicciones[i]+'</td></tr>';
+}
+GEvent.addListener(marker, "click", function() {
+marker.openInfoWindowHtml('<div class="labelsHTML"><table class="prevision" align="center"><caption>'+labelHTML+'</caption>'+buffer+'</table></div>');
+});
+//map.addOverlay(marker);
+return marker;
+}
+/////////////////////////////////////////////////////////////
+//
+// replaceAll method from http://www.bennadel.com/blog/142-Ask-Ben-Javascript-String-Replace-Method.htm
+//
+String.prototype.replaceAll = function(
+strTarget, // The substring you want to replace
+strSubString // The string you want to replace in.
+){
+var strText = this;
+var intIndexOfMatch = strText.indexOf( strTarget );
+// Keep looping while an instance of the target string
+// still exists in the string.
+while (intIndexOfMatch != -1){
+// Relace out the current instance.
+strText = strText.replace( strTarget, strSubString )
+// Get the index of any next matching substring.
+intIndexOfMatch = strText.indexOf( strTarget );
+}
+// Return the updated string with ALL the target strings
+// replaced out with the new substring.
+return( strText );
+}
+//
+/////////////////////////////////////////////////////////////
+function getwindowSize() {
+mapcambasID     = document.getElementById("mapcambas");
+addresscambasID = document.getElementById("addresscambas");
+var myWidth = 640, myHeight = 375;
+if( typeof( window.innerWidth ) == 'number' ) {
+// Non-IE
+//myWidth = window.innerWidth;
+//myHeight = window.innerHeight;
+} else if( document.documentElement && (document.documentElement.clientWidth || document.documentElement.clientHeight) ) {
+// IE 6+ in 'standards compliant mode'
+//myWidth = document.documentElement.clientWidth;
+//myHeight = document.documentElement.clientHeight;
+isIE     = 1;
+} else if( document.body && (document.body.clientWidth || document.body.clientHeight) ) {
+// IE 4 compatible
+//myWidth = document.body.clientWidth;
+//myHeight = document.body.clientHeight;
+isIE     = 1;
+}
+//myWidth  = myWidth - 275;
+//myHeight = myHeight - 125;
+mapcambasID.style.width = myWidth + 'px';
+mapcambasID.style.height = myHeight + 'px';
+}
+function load() {
+getwindowSize();
+if (GBrowserIsCompatible()) {
+map = new GMap2(mapcambasID);
+geo = new GClientGeocoder();
+dir = new GDirections(map, addresscambasID);
+//GEvent.addListener(map, "moveend", function() {
+//    var center = map.getCenter();
+//    // document.getElementById("latlng").innerHTML = 'Centro del mapa: ' + center.toString();
+//});
+GEvent.addListener(dir, "load", function() {
+});
+GEvent.addListener(dir, "error", handleDirectionsErrors);
+//map.addControl(new GMapTypeControl());
+//map.addControl(new GLargeMapControl());
+map.addControl(new GSmallMapControl());
+map.addControl(new GScaleControl());
+//map.addControl(new GOverviewMapControl());
+map.addControl(new ShowHideWeatherControl());
+map.addMapType(G_PHYSICAL_MAP);
+var mct = new GHierarchicalMapTypeControl();
+mct.clearRelationships();
+mct.addRelationship(G_SATELLITE_MAP, G_HYBRID_MAP, "Callejero", false);
+map.addControl(mct);
+map.enableScrollWheelZoom();
+map.setMapType(G_NORMAL_MAP);
+var center = new GLatLng(53.2, 6)
+map.setCenter(center, 2);
+window.setTimeout(setupWeatherMarkers, 100);
+}}
+/////////////////////////////////////////////////////////////
+//
+// from Google Maps API examples...
+//
+function handleDirectionsErrors(){
+if (dir.getStatus().code == G_GEO_UNKNOWN_ADDRESS)
+alert("No se puede situar geograficamente una de las direcciones dadas. Puede ser que la direccion sea muy nueva o que no este escrita correctamente.\nCodigo de error: " + dir.getStatus().code);
+else if (dir.getStatus().code == G_GEO_SERVER_ERROR)
+alert("No se puede puede procesar correctamente la geocodificacion o el calculo de direcciones.\n Codigo de error: " + dir.getStatus().code);
+else if (dir.getStatus().code == G_GEO_MISSING_QUERY)
+alert("No se pasado la direccion en el parametro q.\n Codigo de error: " + dir.getStatus().code);
+//else if (dir.getStatus().code == G_UNAVAILABLE_ADDRESS)  <--- Doc bug... this is either not defined, or Doc is wrong
+//  alert("The geocode for the given address or the route for the given directions query cannot be returned due to legal or contractual reasons.\n Error code: " + dir.getStatus().code);
+else if (dir.getStatus().code == G_GEO_BAD_KEY)
+alert("La clave de acceso al API (key) no es valida o no concuerda con el dominio asociado a ella.\n Codigo de error: " + dir.getStatus().code);
+else if (dir.getStatus().code == G_GEO_BAD_REQUEST)
+alert("El calculo de direcciones no puede ser procesado/entendido correctamente.\n Codigo de error: " + dir.getStatus().code);
+else alert("Ha ocurrido un error desconocido");
+}
+//
+/////////////////////////////////////////////////////////////
+function createMarker(point, labelHTML) {
+var marker = new GMarker(point);
+GEvent.addListener(marker, "click", function() {
+marker.openInfoWindowHtml('<div class="labelsHTML">'+labelHTML+'</div>');
+});
+map.addOverlay(marker);
+marker.openInfoWindowHtml('<div class="labelsHTML">'+labelHTML+'</div>');
+return marker;
+}
+function addAddressesToMap(response) {
+var onlineAddress;
+bufferAddresses    = '';
+latFound.length    = 0;
+lngFound.length    = 0
+markerFound.length = 0
+labelFound.length  = 0
+map.clearOverlays();
+window.setTimeout(setupWeatherMarkers, 100);
+bou = new GLatLngBounds();
+if (!response || response.Status.code != 200) {
+alert("Direccion no localizada, sea mas preciso");
+} else {
+if ( response.Placemark.length > 1 ) {
+bufferAddresses += '<h2>M&uacute;ltiples resultados, elija el adecuado:</h2><table>';
+}else{
+bufferAddresses += '<h2>Direcci&oacute;n encontrada:</h2>';
+}
+for (var i = 0; i < response.Placemark.length; i++) {
+var place = response.Placemark[i];
+latFound[i] = response.Placemark[i].Point.coordinates[1];
+lngFound[i] = response.Placemark[i].Point.coordinates[0];
+point = new GLatLng( latFound[i], lngFound[i] );
+//markerFound[i] = new GMarker(point);
+onlineAddress = place.address;
+onlineAddress = onlineAddress.replaceAll(', Spain', ', Espa&ntilde;a');
+if ( typeof(place.AddressDetails.Country.AdministrativeArea) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.AdministrativeAreaName) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.Thoroughfare) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.Thoroughfare.ThoroughfareName) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.LocalityName) == internalundef ||
+typeof(place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.PostalCode) == internalundef ||
+typeof(place.AddressDetails.Country.CountryNameCode) == internalundef ) {
+labelFound[i] = onlineAddress;
+labelFound[i] = labelFound[i].replaceAll(',', '<br />');
+} else {
+labelFound[i] =
+place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.Thoroughfare.ThoroughfareName + '<br/>' +
+place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.LocalityName + ', ' +
+place.AddressDetails.Country.AdministrativeArea.SubAdministrativeArea.Locality.PostalCode.PostalCodeNumber +
+'<br />' +
+place.AddressDetails.Country.AdministrativeArea.AdministrativeAreaName + ', ' +
+place.AddressDetails.Country.CountryNameCode;
+}
+if ( response.Placemark.length > 1 ) {
+bufferAddresses += '<tr><td class="tenue" valign="top" align="right">' + (i+1) +'.</td><td><a href="javascript:void(0);" onclick="javascript: movetoMarker(' + i + ');">' + onlineAddress + '</a></td></tr>';
+}else{
+bufferAddresses += '<a href="javascript:void(0);" onclick="javascript: movetoMarker(' + i + ');">' + onlineAddress + '</a>';
+}
+labelFound[i] += '<span class="labelsHTMLbuttons"><br/>';
+labelFound[i] += '<br/>Zoom: <a href="javascript:void(0)" onclick="javascript: zoomoutMarker(' + i + ');">alejarse</a>';
+labelFound[i] += '&nbsp;o&nbsp;';
+labelFound[i] += '<a href="javascript:void(0)" onclick="javascript: zoominMarker(' + i + ');">acercarse</a>';
+labelFound[i] += '<br/>Fijar como: <a href="javascript:void(0)" onclick="javascript: setFromdir(' + latFound + ', ' + lngFound + ', \'' + onlineAddress + '\');">origen</a>';
+labelFound[i] += '&nbsp;o&nbsp;';
+labelFound[i] += '<a href="javascript:void(0)" onclick="javascript: setTodir(' + latFound + ', ' + lngFound + ', \'' + onlineAddress + '\');">destino</a>';
+labelFound[i] += '&nbsp; &nbsp;';
+labelFound[i] += '(<a href="javascript:void(0)" onclick="javascript: viewRoute();">ver ruta</a>)';
+labelFound[i] += '</span>';
+markerFound[i] = createMarker(point, labelFound[i]);
+bou.extend(markerFound[i].getPoint());
+}
+if ( response.Placemark.length > 1 ) {
+bufferAddresses += '</table>';
+}
+// Fija la caja de visionado para teniendo en cuenta las marcas puestas
+var center = bou.getCenter();
+if (showWeatherFlag)
+map.setZoom(11);
+else if (showGasFlag)
+map.setZoom(14);
+else map.setZoom(map.getBoundsZoomLevel(bou));
+map.setCenter(center);
+addresscambasID.innerHTML = bufferAddresses;
+}
+}
+function viewRoute() {
+if ( !fromDirectionAdrress || !toDirectionAddress ) {
+if ( !fromDirectionAdrress) {
+alert("Falta asignar el ORIGEN de la ruta");
+}else{
+alert("Falta asignar el DESTINO de la ruta");
+}
+}else{
+// Tenemos origen y destino ==> pintamos la ruta
+map.clearOverlays();
+window.setTimeout(setupWeatherMarkers, 100);
+dir.clear();
+addresscambasID.innerHTML = '';
+dir.load('from:' + fromDirectionAdrress + ' to: ' + toDirectionAddress, "locale: es");
+}
+}
+function setFromdir(lat, lng, address) {
+fromDirectionLatLng  = lat + ',' + lng;
+fromDirectionAdrress =  address;
+}
+function setTodir(lat, lng, address) {
+toDirectionLatLng  = lat + ',' + lng;
+toDirectionAddress =  address;
+}
+function zoominMarker(i) {
+var zoomLevel = map.getZoom();
+if ( zoomLevel >= 17 ) {
+alert("Se ha alcanzado el grado de acercamiento maximo");
+}else{
+map.setCenter( new GLatLng(latFound[i], lngFound[i]), zoomLevel + 1 );
+}
+}
+function zoomoutMarker(i) {
+var zoomLevel = map.getZoom();
+if ( zoomLevel <= 0 ) {
+alert("Se ha alcanzado el grado de alejamiento maximo");
+}else{
+map.setCenter( new GLatLng(latFound[i], lngFound[i]), zoomLevel - 1 );
+}
+}
+function movetoMarker(i) {
+map.panTo( new GLatLng(latFound[i], lngFound[i]) );
+GEvent.trigger( markerFound[i], 'click');
+}
+function findLocation(address) {
+if (geo) {
+geo.getLocations(address, addAddressesToMap);
+}
+}
+function jump2Provincia() {
+var queDondeID = document.getElementById('desplegableProvincias');
+var latlng     = queDondeID.options[queDondeID.selectedIndex].value.split('|');
+map.setCenter(new GLatLng(latlng[0], latlng[1]), 7);
+map.setZoom(6);
+}
+function jump2Canterbury() {
+var lat = 51.280233;
+var long = 1.078909;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Burgum() {
+var lat = 53.2;
+var long = 6;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Venlo() {
+var lat = 51.370489;
+var long = 6.172386;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Jaen() {
+var lat = 37.7666667;
+var long = -3.7833333;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Malaga() {
+var lat = 36.7166667;
+var long = -4.4166667;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Sevilla() {
+var lat = 37.3772222;
+var long = -5.9869444;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Mallorca() {
+var lat = 39.695263;
+var long = 3.017571;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Lisbon() {
+var lat = 38.706932;
+var long = -9.135632;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(6);
+}
+function jump2Init() {
+var lat = 53.2;
+var long = 6;
+map.setCenter(new GLatLng(lat, long), 7);
+map.setZoom(3);
+}
+//]]>
+</script>
+
+</head>
+<body onload="load()" onunload="GUnload()"><div id="pxlhddncntrl" style="display:none"><script language="Javascript" type="text/javascript">var rndPXL=parseInt(Math.random()*10000000);var imgMMD=new Image(1,1);imgMMD.src="/pxlctl.gif?"+rndPXL;</script><script type="text/javascript"> var _gaq = _gaq || []; _gaq.push(["_setAccount", ""]); _gaq.push(["_trackPageview"]); (function() { var ga = document.createElement("script"); ga.type = "text/javascript"; ga.async = true; ga.src = ("https:" == document.location.protocol ? "https://ssl" : "http://www") + ".google-analytics.com/ga.js"; var s = document.getElementsByTagName("script")[0]; s.parentNode.insertBefore(ga, s); })(); </script></div>
+<form action="#" onsubmit="findLocation(this.address.value); return false"><table border="0" class="tablamapa" >
+<tr>
+<td valign="top" width="1000">
+<div id="mapcambas" style="width: 1px; height: 1px"></div>
+<div id="enlaceMapa" class="oculto"></div>
+</td>
+</tr>
+</table>
+</form>
+<div id="tiempo" class="cuadro">
+	<div id="pos1" class="cuadro_pos1">
+		<a href="#" onclick="jump2Init()" class="enlacewhite">WP Realm - World</a>
+	</div>
+
+	<div id="pos2" class="cuadro_pos2">
+		<a href="#" onclick="jump2Canterbury()" class="enlacewhite">Canterbury</a><br />
+		<a href="#" onclick="jump2Mallorca()" class="enlacewhite">Mallorca</a>
+	</div>
+	<div id="pos2" class="cuadro_pos2">
+		<a href="#" onclick="jump2Burgum()" class="enlacewhite">Burgum</a><br />
+		<!--<a href="#" onclick="jump2Jaen()" class="enlacewhite">JA&Eacute;N</a>-->
+	</div>
+	<div id="pos2" class="cuadro_pos2">
+		<a href="#" onclick="jump2Venlo()" class="enlacewhite">Venlo</a><br />
+		<!--<a href="#" onclick="jump2Malaga()" class="enlacewhite">M&Aacute;LAGA</a>-->
+	</div>
+	<div id="pos2" class="cuadro_pos2">
+		<a href="#" onclick="jump2Lisbon()" class="enlacewhite">Lisbon</a><br />
+		<a href="#" onclick="jump2Sevilla()" class="enlacewhite">Sevilla</a>
+	</div>
+
+</div>
+</body>
+</html>
